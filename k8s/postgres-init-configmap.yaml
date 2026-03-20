@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: gym-inventory
+data:
+  01-create-databases.sql: |
+    CREATE DATABASE gym_user_db;
+    CREATE DATABASE gym_category_db;
+    CREATE DATABASE gym_product_db;
+    CREATE DATABASE gym_inventory_db;
+    CREATE DATABASE gym_report_db;
+

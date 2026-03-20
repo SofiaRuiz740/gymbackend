@@ -1,0 +1,3 @@
+ALTER TABLE identity.users
+    ADD COLUMN IF NOT EXISTS version BIGINT;
+

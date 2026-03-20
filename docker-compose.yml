@@ -1,0 +1,169 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gym-postgres
+    environment:
+      POSTGRES_USER: gym
+      POSTGRES_PASSWORD: gym
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gym -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  kafka:
+    image: bitnamilegacy/kafka:4.0.0-debian-12-r10
+    container_name: gym-kafka
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    ports:
+      - "9092:9092"
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    environment:
+      USER_SERVICE_URI: http://user-service:8081
+      CATEGORY_SERVICE_URI: http://category-service:8082
+      PRODUCT_SERVICE_URI: http://product-service:8083
+      INVENTORY_SERVICE_URI: http://inventory-service:8084
+      REPORT_SERVICE_URI: http://report-service:8085
+    ports:
+      - "8080:8080"
+    depends_on:
+      user-service:
+        condition: service_started
+      category-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      report-service:
+        condition: service_started
+
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gym_user_db
+      DB_USER: gym
+      DB_PASSWORD: gym
+      JWT_SECRET: replace-this-with-a-very-strong-secret-32-bytes
+      BOOTSTRAP_ADMIN_USERNAME: admin
+      BOOTSTRAP_ADMIN_EMAIL: admin@gym.local
+      BOOTSTRAP_ADMIN_PASSWORD: Admin123!
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  category-service:
+    build:
+      context: .
+      dockerfile: category-service/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gym_category_db
+      DB_USER: gym
+      DB_PASSWORD: gym
+      JWT_SECRET: replace-this-with-a-very-strong-secret-32-bytes
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_CATEGORY_TOPIC: category.events
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
+  product-service:
+    build:
+      context: .
+      dockerfile: product-service/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gym_product_db
+      DB_USER: gym
+      DB_PASSWORD: gym
+      JWT_SECRET: replace-this-with-a-very-strong-secret-32-bytes
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_CATEGORY_TOPIC: category.events
+      KAFKA_PRODUCT_TOPIC: product.events
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gym_inventory_db
+      DB_USER: gym
+      DB_PASSWORD: gym
+      JWT_SECRET: replace-this-with-a-very-strong-secret-32-bytes
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_PRODUCT_TOPIC: product.events
+      KAFKA_INVENTORY_TOPIC: inventory.movements
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
+  report-service:
+    build:
+      context: .
+      dockerfile: report-service/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gym_report_db
+      DB_USER: gym
+      DB_PASSWORD: gym
+      JWT_SECRET: replace-this-with-a-very-strong-secret-32-bytes
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_CATEGORY_TOPIC: category.events
+      KAFKA_PRODUCT_TOPIC: product.events
+      KAFKA_INVENTORY_TOPIC: inventory.movements
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
+volumes:
+  postgres-data:

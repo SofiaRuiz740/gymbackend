@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-config
+  namespace: gym-inventory
+data:
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  KAFKA_CATEGORY_TOPIC: category.events
+  KAFKA_PRODUCT_TOPIC: product.events
+  KAFKA_INVENTORY_TOPIC: inventory.movements
+  USER_SERVICE_URI: http://user-service:8081
+  CATEGORY_SERVICE_URI: http://category-service:8082
+  PRODUCT_SERVICE_URI: http://product-service:8083
+  INVENTORY_SERVICE_URI: http://inventory-service:8084
+  REPORT_SERVICE_URI: http://report-service:8085
+  BOOTSTRAP_ADMIN_USERNAME: admin
+  BOOTSTRAP_ADMIN_EMAIL: admin@gym.local
+

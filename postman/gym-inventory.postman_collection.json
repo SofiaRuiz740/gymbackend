@@ -1,0 +1,1655 @@
+{
+  "info": {
+    "_postman_id": "7f6b84b8-4f66-4c0b-ae56-1f4e7a6d1001",
+    "name": "Gym Inventory Platform By Microservice",
+    "description": "Coleccion unica para importar en Postman, organizada por microservicio y en el orden correcto del flujo de negocio.\n\nOrden sugerido:\n1. Infra y Gateway\n2. user-service\n3. category-service\n4. product-service\n5. inventory-service\n6. report-service\n\nNota:\n- Los requests funcionales pasan por el api-gateway en http://localhost:8080\n- Los requests Health van directo al puerto de cada microservicio\n- El request 01 - Login Admin inicializa variables dinamicas para evitar conflictos entre ejecuciones\n- Espera 2 a 3 segundos entre Create Product y Register Entry para que Kafka propague el evento",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "userServiceUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "categoryServiceUrl",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "productServiceUrl",
+      "value": "http://localhost:8083"
+    },
+    {
+      "key": "inventoryServiceUrl",
+      "value": "http://localhost:8084"
+    },
+    {
+      "key": "reportServiceUrl",
+      "value": "http://localhost:8085"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin"
+    },
+    {
+      "key": "adminPassword",
+      "value": "Admin123!"
+    },
+    {
+      "key": "secondaryAdminUsername",
+      "value": ""
+    },
+    {
+      "key": "secondaryAdminEmail",
+      "value": ""
+    },
+    {
+      "key": "secondaryAdminPassword",
+      "value": "Admin12345!"
+    },
+    {
+      "key": "operatorUsername",
+      "value": ""
+    },
+    {
+      "key": "operatorEmail",
+      "value": ""
+    },
+    {
+      "key": "operatorPassword",
+      "value": "User12345!"
+    },
+    {
+      "key": "categoryCode",
+      "value": ""
+    },
+    {
+      "key": "categoryName",
+      "value": ""
+    },
+    {
+      "key": "categoryUpdatedName",
+      "value": ""
+    },
+    {
+      "key": "productSku",
+      "value": ""
+    },
+    {
+      "key": "productName",
+      "value": ""
+    },
+    {
+      "key": "productUpdatedName",
+      "value": ""
+    },
+    {
+      "key": "runSuffix",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "secondaryAdminToken",
+      "value": ""
+    },
+    {
+      "key": "userToken",
+      "value": ""
+    },
+    {
+      "key": "secondaryAdminId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "reportFrom",
+      "value": ""
+    },
+    {
+      "key": "reportTo",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Infra y Gateway",
+      "item": [
+        {
+          "name": "Gateway Health",
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver status=UP",
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - user-service",
+      "item": [
+        {
+          "name": "User Service Health",
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver status=UP",
+            "method": "GET",
+            "url": {
+              "raw": "{{userServiceUrl}}/actuator/health",
+              "host": [
+                "{{userServiceUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "01 - Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('adminToken', json.accessToken);",
+                  "var suffix = Date.now().toString().slice(-6);",
+                  "pm.collectionVariables.set('runSuffix', suffix);",
+                  "pm.collectionVariables.set('secondaryAdminUsername', 'admin' + suffix);",
+                  "pm.collectionVariables.set('secondaryAdminEmail', 'admin' + suffix + '@gym.local');",
+                  "pm.collectionVariables.set('operatorUsername', 'operador' + suffix);",
+                  "pm.collectionVariables.set('operatorEmail', 'operador' + suffix + '@gym.local');",
+                  "pm.collectionVariables.set('categoryCode', 'SUP' + suffix);",
+                  "pm.collectionVariables.set('categoryName', 'Suplementos ' + suffix);",
+                  "pm.collectionVariables.set('categoryUpdatedName', 'Suplementos Premium ' + suffix);",
+                  "pm.collectionVariables.set('productSku', 'PROT-' + suffix);",
+                  "pm.collectionVariables.set('productName', 'Proteina Whey ' + suffix);",
+                  "pm.collectionVariables.set('productUpdatedName', 'Proteina Whey Premium ' + suffix);",
+                  "pm.collectionVariables.set('reportFrom', new Date().toISOString());",
+                  "pm.collectionVariables.set('reportTo', new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver accessToken\n- Debe devolver username=admin\n- Debe devolver role=ROLE_ADMIN\n- Ademas inicializa variables dinamicas para el resto de la corrida",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02 - Create Secondary Admin User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('secondaryAdminId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe crear un nuevo ROLE_ADMIN\n- Debe guardar secondaryAdminId",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{secondaryAdminUsername}}\",\n  \"email\": \"{{secondaryAdminEmail}}\",\n  \"password\": \"{{secondaryAdminPassword}}\",\n  \"role\": \"ROLE_ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "03 - Login Secondary Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('secondaryAdminToken', json.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver accessToken del admin secundario",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{secondaryAdminUsername}}\",\n  \"password\": \"{{secondaryAdminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Create Operator User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('userId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe crear un nuevo ROLE_USER\n- Debe guardar userId",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{operatorUsername}}\",\n  \"email\": \"{{operatorEmail}}\",\n  \"password\": \"{{operatorPassword}}\",\n  \"role\": \"ROLE_USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05 - Login Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('userToken', json.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver accessToken\n- Debe devolver role=ROLE_USER",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{operatorUsername}}\",\n  \"password\": \"{{operatorPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06 - List Users As Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe listar al admin bootstrap, admin secundario y operador creados",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "07 - List Users Forbidden For Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 403\n- Un ROLE_USER no puede listar usuarios",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "08 - Create User Forbidden For Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 403\n- Un ROLE_USER no puede crear usuarios",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"bloqueado{{runSuffix}}\",\n  \"email\": \"bloqueado{{runSuffix}}@gym.local\",\n  \"password\": \"User12345!\",\n  \"role\": \"ROLE_USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - category-service",
+      "item": [
+        {
+          "name": "Category Service Health",
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver status=UP",
+            "method": "GET",
+            "url": {
+              "raw": "{{categoryServiceUrl}}/actuator/health",
+              "host": [
+                "{{categoryServiceUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "01 - Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('categoryId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver id\n- Debe devolver code={{categoryCode}}\n- Debe devolver active=true",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{categoryCode}}\",\n  \"name\": \"{{categoryName}}\",\n  \"description\": \"Proteinas, bebidas energeticas y suplementos basicos\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02 - Get Category By Id As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Un usuario autenticado puede consultar una categoria",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "03 - List Categories As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Un usuario autenticado puede listar categorias",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Create Category Forbidden For Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 403\n- Un ROLE_USER no puede crear categorias",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"BLOCK{{runSuffix}}\",\n  \"name\": \"Bloqueada {{runSuffix}}\",\n  \"description\": \"No debe permitirse\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05 - Update Category As Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe actualizar el nombre y la descripcion de la categoria",
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{categoryUpdatedName}}\",\n  \"description\": \"Categoria actualizada para la corrida {{runSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - product-service",
+      "item": [
+        {
+          "name": "Product Service Health",
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver status=UP",
+            "method": "GET",
+            "url": {
+              "raw": "{{productServiceUrl}}/actuator/health",
+              "host": [
+                "{{productServiceUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "01 - Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('productId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver id\n- Debe devolver sku={{productSku}}\n- Debe quedar asociado a la categoria creada\n- Antes del siguiente paso espera 2 a 3 segundos",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"{{productSku}}\",\n  \"name\": \"{{productName}}\",\n  \"description\": \"Suplemento basico sabor vainilla\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"unitPrice\": 129900,\n  \"brand\": \"GymFuel\",\n  \"productType\": \"SUPPLEMENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02 - Get Product By Id As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Un usuario autenticado puede consultar un producto",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "03 - List Products As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Un usuario autenticado puede listar productos",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Create Product Forbidden For Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 403\n- Un ROLE_USER no puede crear productos",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"BLOCK-{{runSuffix}}\",\n  \"name\": \"Producto Bloqueado {{runSuffix}}\",\n  \"description\": \"No debe permitirse\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"unitPrice\": 1000,\n  \"brand\": \"Denied\",\n  \"productType\": \"ACCESSORY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05 - Update Product As Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe actualizar nombre, descripcion y precio del producto\n- Antes de pasar a inventory-service espera 2 a 3 segundos",
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{productUpdatedName}}\",\n  \"description\": \"Suplemento premium sabor vainilla\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"unitPrice\": 139900,\n  \"brand\": \"GymFuel\",\n  \"productType\": \"SUPPLEMENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06 - Get Product By Id Updated As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe reflejar el producto actualizado",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - inventory-service",
+      "item": [
+        {
+          "name": "Inventory Service Health",
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver status=UP",
+            "method": "GET",
+            "url": {
+              "raw": "{{inventoryServiceUrl}}/actuator/health",
+              "host": [
+                "{{inventoryServiceUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "01 - Get Stock Initial As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Si ya propagó el evento de producto, debe aparecer el producto con stock inicial 0",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stock"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02 - Register Entry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver movementType=ENTRY\n- Debe devolver quantity=20\n- Debe devolver resultingStock=20",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 20,\n  \"reference\": \"COMPRA-{{runSuffix}}\",\n  \"notes\": \"Ingreso inicial al inventario\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/movements/entries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "movements",
+                "entries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "03 - Register Exit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver movementType=EXIT\n- Debe devolver quantity=5\n- Debe devolver resultingStock=15",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 5,\n  \"reference\": \"VENTA-{{runSuffix}}\",\n  \"notes\": \"Salida por venta en mostrador\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/movements/exits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "movements",
+                "exits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Register Exit Insufficient Stock",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 400\n- Debe rechazar una salida que deje stock negativo",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 999,\n  \"reference\": \"VENTA-INVALIDA-{{runSuffix}}\",\n  \"notes\": \"No debe permitirse\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/movements/exits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "movements",
+                "exits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05 - Get Stock Final As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe listar el producto creado\n- Debe mostrar availableStock=15",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stock"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06 - Get Movements By Range As Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe mostrar los movimientos de la corrida actual dentro del rango",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/movements?from={{reportFrom}}&to={{reportTo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "movements"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "{{reportFrom}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{reportTo}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - report-service",
+      "item": [
+        {
+          "name": "Report Service Health",
+          "request": {
+            "description": "- Debe salir 200\n- Debe devolver status=UP",
+            "method": "GET",
+            "url": {
+              "raw": "{{reportServiceUrl}}/actuator/health",
+              "host": [
+                "{{reportServiceUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "01 - Stock Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe incluir el producto de esta corrida con su stock actual",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "stock"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02 - Low Stock Report Threshold 20",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Como el stock final esperado es 15 y el threshold es 20, debe incluir el producto de esta corrida",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/low-stock?threshold=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "low-stock"
+              ],
+              "query": [
+                {
+                  "key": "threshold",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03 - Movement Audit Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe mostrar el detalle de cada movimiento de la corrida actual: una entrada y una salida",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/movements?from={{reportFrom}}&to={{reportTo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "movements"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "{{reportFrom}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{reportTo}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Movement Summary Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 200\n- Debe resumir la corrida actual por tipo de movimiento\n- Debe mostrar ENTRY y EXIT agregados",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/movements/summary?from={{reportFrom}}&to={{reportTo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "movements",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "{{reportFrom}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{reportTo}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "05 - Stock Report Forbidden For Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 403\n- Un ROLE_USER no puede consultar reportes",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "stock"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06 - Low Stock Report Forbidden For Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 403\n- Un ROLE_USER no puede consultar reportes de bajo stock",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/low-stock?threshold=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "low-stock"
+              ],
+              "query": [
+                {
+                  "key": "threshold",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "07 - Movement Audit Report Forbidden For Operator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "description": "- Debe salir 403\n- Un ROLE_USER no puede consultar auditoria de movimientos",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/movements?from={{reportFrom}}&to={{reportTo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "movements"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "{{reportFrom}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{reportTo}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

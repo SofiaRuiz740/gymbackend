@@ -1,0 +1,12 @@
+CREATE SCHEMA IF NOT EXISTS catalog;
+
+CREATE TABLE IF NOT EXISTS catalog.categories (
+    id UUID PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    description VARCHAR(255),
+    active BOOLEAN NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
