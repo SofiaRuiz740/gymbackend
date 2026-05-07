@@ -1,0 +1,59 @@
+name: Deploy Category Service
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  PROJECT_ID: gymbackend-495619
+  REGION: us-central1
+  REPOSITORY: gym-docker
+  SERVICE_NAME: category-service
+  IMAGE_NAME: category-service
+
+jobs:
+  deploy:
+    permissions:
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Auth Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build JAR
+        run: |
+          mvn clean package -DskipTests
+
+      - name: Build Docker image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/gymbackend-495619/gym-docker/category-service:latest ./category-service
+
+      - name: Push Docker image
+        run: |
+          docker push us-central1-docker.pkg.dev/gymbackend-495619/gym-docker/category-service:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy category-service \
+            --image=us-central1-docker.pkg.dev/gymbackend-495619/gym-docker/category-service:latest \
+            --region=us-central1 \
+            --platform=managed \
+            --allow-unauthenticated \
+            --set-env-vars=DB_HOST=${{ secrets.DB_HOST }},DB_PORT=5432,DB_NAME=gym_category_db,DB_SCHEMA=catalog,DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET }},KAFKA_BOOTSTRAP_SERVERS=${{ secrets.KAFKA_BOOTSTRAP_SERVERS }},KAFKA_CATEGORY_TOPIC=category.events
