@@ -1,0 +1,59 @@
+name: Deploy User Service
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  PROJECT_ID: gymbackend-495619
+  REGION: us-central1
+  REPOSITORY: gym-docker
+  SERVICE_NAME: user-service
+  IMAGE_NAME: user-service
+
+jobs:
+  deploy:
+    permissions:
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Auth Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build JAR
+        run: |
+          mvn clean package -DskipTests
+
+      - name: Build Docker image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/gymbackend-495619/gym-docker/user-service:latest ./user-service
+
+      - name: Push Docker image
+        run: |
+          docker push us-central1-docker.pkg.dev/gymbackend-495619/gym-docker/user-service:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy user-service \
+            --image=us-central1-docker.pkg.dev/gymbackend-495619/gym-docker/user-service:latest \
+            --region=us-central1 \
+            --platform=managed \
+            --allow-unauthenticated \
+            --set-env-vars=DB_HOST=${{ secrets.DB_HOST }},DB_PORT=5432,DB_NAME=gym_user_db,DB_SCHEMA=identity,DB_USER=${{ secrets.DB_USER }},JWT_SECRET=${{ secrets.JWT_SECRET }},JWT_ISSUER=gym-inventory,JWT_EXPIRATION_MINUTES=480,BOOTSTRAP_ADMIN_USERNAME=${{ secrets.BOOTSTRAP_ADMIN_USERNAME }},BOOTSTRAP_ADMIN_EMAIL=${{ secrets.BOOTSTRAP_ADMIN_EMAIL }},BOOTSTRAP_ADMIN_PASSWORD=${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }},DB_PASSWORD=${{ secrets.DB_PASSWORD }}
