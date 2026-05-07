@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -25,26 +25,28 @@ spring:
             allowCredentials: true
       routes:
         - id: user-service-auth
-          uri: ${USER_SERVICE_URI:http://localhost:8081}
+          uri: ${USER_SERVICE_URI}
           predicates:
             - Path=/api/v1/auth/**,/api/v1/users/**
         - id: category-service
-          uri: ${CATEGORY_SERVICE_URI:http://localhost:8082}
+          uri: ${CATEGORY_SERVICE_URI}
           predicates:
             - Path=/api/v1/categories/**
         - id: product-service
-          uri: ${PRODUCT_SERVICE_URI:http://localhost:8083}
+          uri: ${PRODUCT_SERVICE_URI}
           predicates:
             - Path=/api/v1/products/**
         - id: inventory-service
-          uri: ${INVENTORY_SERVICE_URI:http://localhost:8084}
+          uri: ${INVENTORY_SERVICE_URI}
           predicates:
             - Path=/api/v1/movements/**,/api/v1/stock/**
         - id: report-service
-          uri: ${REPORT_SERVICE_URI:http://localhost:8085}
+          uri: ${REPORT_SERVICE_URI}
           predicates:
             - Path=/api/v1/reports/**
-
+logging:
+  level:
+    org.apache.kafka: ERROR
 management:
   endpoints:
     web:
@@ -54,4 +56,3 @@ management:
     health:
       probes:
         enabled: true
-

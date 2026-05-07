@@ -1,0 +1,113 @@
+.reports-page__panel-head h2,
+.reports-page__summary-value {
+  margin: 0;
+}
+
+.reports-page__filters-bar {
+  padding: 1.15rem;
+}
+
+.reports-page__filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+  align-items: end;
+}
+
+.reports-page__actions {
+  justify-content: flex-end;
+}
+
+.reports-page__grid {
+  grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+  gap: 1rem;
+}
+
+.reports-page__main,
+.reports-page__audit,
+.reports-page__summary,
+.reports-page__alert {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+}
+
+.reports-page__main {
+  grid-column: 1;
+}
+
+.reports-page__alert {
+  padding: 1.3rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(216, 40, 57, 0.14);
+  background: linear-gradient(180deg, rgba(31, 19, 22, 0.98) 0%, rgba(21, 14, 17, 0.98) 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.reports-page__audit {
+  grid-column: 1;
+}
+
+.reports-page__summary {
+  grid-column: 2;
+}
+
+.reports-page__panel-head {
+  display: flex;
+  align-items: center;
+  min-height: 1.75rem;
+}
+
+.reports-page__panel-head h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.reports-page__alert-list,
+.reports-page__summary-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.reports-page__alert-item,
+.reports-page__summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.reports-page__alert-item strong,
+.reports-page__summary-copy strong {
+  display: block;
+  font-weight: 700;
+}
+
+.reports-page__alert-item span,
+.reports-page__summary-copy span {
+  color: var(--color-muted);
+  font-size: 0.84rem;
+}
+
+.reports-page__summary-value {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 1120px) {
+  .reports-page__filters,
+  .reports-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-page__main,
+  .reports-page__audit,
+  .reports-page__summary {
+    grid-column: auto;
+  }
+}

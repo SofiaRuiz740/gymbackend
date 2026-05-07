@@ -1,0 +1,23 @@
+<section class="section-shell surface-card">
+  <header class="section-shell__header">
+    <div class="section-shell__copy">
+      @if (kicker()) {
+        <span class="eyebrow">{{ kicker() }}</span>
+      }
+
+      <h2>{{ title() }}</h2>
+
+      @if (description()) {
+        <p>{{ description() }}</p>
+      }
+    </div>
+
+    <div class="section-shell__actions">
+      <ng-content select="[section-actions]" />
+    </div>
+  </header>
+
+  <div class="section-shell__body">
+    <ng-content />
+  </div>
+</section>

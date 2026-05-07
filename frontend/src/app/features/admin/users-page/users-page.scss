@@ -1,0 +1,80 @@
+.users-page__layout {
+  display: grid;
+  grid-template-columns: minmax(17rem, 0.78fr) minmax(0, 1.22fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.users-page__editor {
+  display: grid;
+  align-content: start;
+  gap: 1.1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.35rem;
+  background: linear-gradient(180deg, rgba(23, 26, 31, 0.98) 0%, rgba(14, 16, 19, 0.98) 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.users-page__editor-head {
+  display: flex;
+  align-items: center;
+  min-height: 2rem;
+}
+
+.users-page__editor-head h2,
+.users-page__list-head h2 {
+  margin: 0;
+}
+
+.users-page__editor-head h2 {
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+}
+
+.users-page__editor .field label {
+  color: var(--color-muted);
+}
+
+.users-page__editor .field input,
+.users-page__editor .field select {
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+.users-page__list {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.users-page__list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.users-page__list-head h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.users-page__list-head span {
+  color: var(--color-muted);
+  font-size: 0.84rem;
+}
+
+.users-page__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1120px) {
+  .users-page__layout {
+    grid-template-columns: 1fr;
+  }
+}

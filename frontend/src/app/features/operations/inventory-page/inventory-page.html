@@ -1,0 +1,123 @@
+<div class="page-stack">
+  @if (feedback(); as feedbackMessage) {
+    <app-notice-banner
+      [tone]="feedbackMessage.tone"
+      [title]="feedbackMessage.title"
+      [message]="feedbackMessage.message"
+    />
+  }
+
+  <section class="page-lead">
+    <div class="page-lead__copy">
+      <h1>Inventario</h1>
+      <p>Registra ajustes rapidos y consulta el stock vivo del gimnasio.</p>
+    </div>
+  </section>
+
+  <div class="page-grid page-grid--2">
+    <app-section-shell
+      kicker="Ajuste rapido"
+      title="Registrar movimiento"
+      description="Usa una sola accion para entrada o salida sin abandonar la vista de stock."
+    >
+      @if (!hasProducts()) {
+        <app-empty-state
+          title="Sin productos activos"
+          message="Necesitas productos activos para registrar operaciones."
+        />
+      } @else {
+        <form class="form-grid" [formGroup]="form" (ngSubmit)="submitMovement()">
+          <div class="field">
+            <label for="inventory-product">Producto</label>
+            <select id="inventory-product" formControlName="productId">
+              <option value="">Selecciona un producto</option>
+              @for (product of products(); track product.id) {
+                <option [value]="product.id">{{ product.name }} - {{ product.sku }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label for="inventory-type">Tipo</label>
+              <select id="inventory-type" formControlName="movementType">
+                <option value="ENTRY">ENTRY</option>
+                <option value="EXIT">EXIT</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="inventory-quantity">Cantidad</label>
+              <input id="inventory-quantity" type="number" formControlName="quantity" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="inventory-reference">Referencia</label>
+            <input id="inventory-reference" type="text" formControlName="reference" />
+          </div>
+
+          <div class="field">
+            <label for="inventory-notes">Notas</label>
+            <textarea id="inventory-notes" formControlName="notes"></textarea>
+          </div>
+
+          <div class="button-row">
+            <button type="submit" class="button" [disabled]="submitting()">
+              {{ submitting() ? 'Registrando...' : 'Registrar movimiento' }}
+            </button>
+          </div>
+        </form>
+      }
+    </app-section-shell>
+
+    <app-section-shell
+      kicker="Stock vivo"
+      title="Disponibilidad actual"
+      description="Lectura instantanea del inventario sincronizado con inventory-service."
+    >
+      @if (stockState().status === 'loading') {
+        <app-loading-panel label="Consultando stock..." />
+      } @else if (stockState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="stockState().message ?? ''" />
+      } @else if (stockState().status === 'empty') {
+        <app-empty-state title="Sin stock" message="Todavia no hay productos propagados al inventario." />
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoria</th>
+                <th>Stock</th>
+                <th>Actualizado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of stockState().data; track item.productId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.productName }}</strong>
+                    <span class="inline-meta">{{ item.sku }}</span>
+                  </td>
+                  <td>{{ item.categoryName }}</td>
+                  <td>
+                    <span
+                      class="status-pill"
+                      [class.status-pill--danger]="item.availableStock === 0"
+                      [class.status-pill--warning]="item.availableStock > 0 && item.availableStock <= 10"
+                      [class.status-pill--success]="item.availableStock > 10"
+                    >
+                      {{ item.availableStock }}
+                    </span>
+                  </td>
+                  <td>{{ item.updatedAt | date: 'medium' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </app-section-shell>
+  </div>
+</div>

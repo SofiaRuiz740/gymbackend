@@ -1,8 +1,8 @@
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY inventory-service/target/inventory-service-1.0.0.jar app.jar
+COPY target/inventory-service-1.0.0.jar app.jar
 
-EXPOSE 8084
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

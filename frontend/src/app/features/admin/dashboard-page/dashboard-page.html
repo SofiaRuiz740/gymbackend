@@ -1,0 +1,153 @@
+<div class="page-stack">
+  @if (feedback(); as feedbackMessage) {
+    <app-notice-banner
+      [tone]="feedbackMessage.tone"
+      [title]="feedbackMessage.title"
+      [message]="feedbackMessage.message"
+    />
+  }
+
+  <section class="dashboard-page__hero">
+    <div class="dashboard-page__hero-actions">
+      <article class="dashboard-page__hero-alert">
+        <span>Alertas activas</span>
+        <strong>{{ metrics().lowStock }}</strong>
+        <small>productos bajo umbral</small>
+      </article>
+
+      <button type="button" class="button" (click)="loadDashboard()">Actualizar panel</button>
+    </div>
+  </section>
+
+  <section class="dashboard-page__command">
+    <article class="dashboard-page__stock-core">
+      <div class="dashboard-page__stock-copy">
+        <span class="dashboard-page__stock-label">Stock total disponible</span>
+        <strong>{{ metrics().stockUnits | number }}</strong>
+        <p>Unidades listas para consumo, venta y reposicion dentro del sistema.</p>
+      </div>
+
+      <div class="dashboard-page__stock-pulse">
+        <span>Control vivo</span>
+        <small>Actualizacion bajo demanda</small>
+      </div>
+    </article>
+
+    <div class="dashboard-page__metric-column">
+      <article class="dashboard-page__metric-slab">
+        <span>Usuarios</span>
+        <strong>{{ metrics().users }}</strong>
+        <p>Cuentas con acceso configurado.</p>
+      </article>
+
+      <article class="dashboard-page__metric-slab">
+        <span>Categorias activas</span>
+        <strong>{{ metrics().activeCategories }}</strong>
+        <p>Estructura vigente para catalogo y stock.</p>
+      </article>
+
+      <article class="dashboard-page__metric-slab">
+        <span>Productos activos</span>
+        <strong>{{ metrics().activeProducts }}</strong>
+        <p>Items operativos visibles en inventario.</p>
+      </article>
+    </div>
+  </section>
+
+  <div class="dashboard-page__stream">
+    <section class="surface-card dashboard-page__section dashboard-page__section--stock">
+      <header class="dashboard-page__section-head">
+        <div>
+          <span class="eyebrow">Critico</span>
+          <h2>Stock sensible</h2>
+        </div>
+        <span class="dashboard-page__section-note">{{ metrics().lowStock }} alertas</span>
+      </header>
+
+      @if (loading() && lowStockState().status === 'loading') {
+        <app-loading-panel label="Cargando alertas..." />
+      } @else if (lowStockState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="lowStockState().message ?? ''" />
+      } @else if (lowStockState().status === 'empty') {
+        <app-empty-state title="Sin alertas" message="No hay productos por debajo del umbral." />
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoria</th>
+                <th>Stock</th>
+                <th>Actualizado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of lowStockState().data; track item.productId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.productName }}</strong>
+                    <span class="inline-meta">{{ item.sku }}</span>
+                  </td>
+                  <td>{{ item.categoryName }}</td>
+                  <td><span class="status-pill status-pill--warning">{{ item.currentStock }}</span></td>
+                  <td>{{ item.updatedAt | date: 'medium' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="dashboard-page__section dashboard-page__activity">
+      <header class="dashboard-page__section-head">
+        <div>
+          <span class="eyebrow">Actividad</span>
+          <h2>Flujo reciente</h2>
+        </div>
+        <span class="dashboard-page__section-note">Ultimos 7 dias</span>
+      </header>
+
+      @if (loading() && movementsState().status === 'loading') {
+        <app-loading-panel label="Cargando movimientos..." />
+      } @else if (movementsState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="movementsState().message ?? ''" />
+      } @else if (movementsState().status === 'empty') {
+        <app-empty-state title="Sin movimientos" message="No hay actividad reciente." />
+      } @else {
+        <div class="dashboard-page__feed-list">
+          @for (item of movementsState().data; track item.id) {
+            <article class="dashboard-page__feed-item">
+              <div
+                class="dashboard-page__feed-line"
+                [class.dashboard-page__feed-line--entry]="item.movementType === 'ENTRY'"
+              ></div>
+
+              <div class="dashboard-page__feed-copy">
+                <strong>{{ item.productName }}</strong>
+                <span>{{ item.reference || 'Sin referencia' }}</span>
+              </div>
+
+              <div class="dashboard-page__feed-signal">
+                <span
+                  class="status-pill"
+                  [class.status-pill--success]="item.movementType === 'ENTRY'"
+                  [class.status-pill--warning]="item.movementType === 'EXIT'"
+                >
+                  {{ item.movementType }}
+                </span>
+                <strong>{{ item.quantity | number }}</strong>
+              </div>
+
+              <div class="dashboard-page__feed-meta">
+                <strong>{{ item.resultingStock | number }}</strong>
+                <span>stock final</span>
+                <small>{{ item.occurredAt | date: 'short' }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</div>

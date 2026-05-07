@@ -3,6 +3,7 @@ package com.gym.user.web;
 import com.gym.user.service.AuthService;
 import com.gym.user.web.dto.LoginRequest;
 import com.gym.user.web.dto.LoginResponse;
+import com.gym.user.web.dto.RegisterRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,5 +26,9 @@ public class AuthController {
     public Mono<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
-}
 
+    @PostMapping("/register")
+    public Mono<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return authService.register(request);
+    }
+}

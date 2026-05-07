@@ -1,8 +1,8 @@
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY category-service/target/category-service-1.0.0.jar app.jar
+COPY target/category-service-1.0.0.jar app.jar
 
-EXPOSE 8082
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

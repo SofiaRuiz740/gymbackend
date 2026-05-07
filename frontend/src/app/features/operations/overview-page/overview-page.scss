@@ -1,0 +1,99 @@
+:host {
+  display: block;
+}
+
+.overview-page__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(18rem, 0.82fr);
+  gap: 1rem;
+}
+
+.overview-page__core,
+.overview-page__side-card {
+  display: grid;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+}
+
+.overview-page__core {
+  gap: 0.85rem;
+  min-height: 20rem;
+  padding: 1.55rem;
+  border-radius: 1.7rem;
+  background: linear-gradient(135deg, rgba(23, 26, 32, 0.98) 0%, rgba(13, 15, 18, 0.98) 66%, rgba(76, 10, 18, 0.96) 142%);
+}
+
+.overview-page__core h1,
+.overview-page__core-metric strong,
+.overview-page__side-card strong {
+  margin: 0;
+}
+
+.overview-page__core h1 {
+  font-size: clamp(2.5rem, 4vw, 4.1rem);
+  font-family: var(--font-display);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+}
+
+.overview-page__core p,
+.overview-page__side-card p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.overview-page__core p {
+  max-width: 40rem;
+}
+
+.overview-page__core-metric {
+  display: grid;
+  gap: 0.28rem;
+  align-self: end;
+}
+
+.overview-page__core-metric span,
+.overview-page__side-card span {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.overview-page__core-metric strong {
+  font-family: var(--font-display);
+  font-size: clamp(4.4rem, 8vw, 6.5rem);
+  line-height: 0.86;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+.overview-page__side {
+  display: grid;
+  gap: 1rem;
+}
+
+.overview-page__side-card {
+  gap: 0.38rem;
+  align-content: start;
+  padding: 1.2rem 1.25rem;
+  border-radius: 1.3rem;
+  background: linear-gradient(180deg, rgba(22, 25, 30, 0.96) 0%, rgba(15, 17, 21, 0.98) 100%);
+}
+
+.overview-page__side-card strong {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+@media (max-width: 1120px) {
+  .overview-page__hero {
+    grid-template-columns: 1fr;
+  }
+}

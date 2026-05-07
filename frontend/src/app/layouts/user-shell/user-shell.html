@@ -1,0 +1,38 @@
+<div class="user-shell">
+  <header class="user-shell__topbar">
+    <div class="user-shell__brand">
+      <div class="user-shell__brand-mark">IG</div>
+      <div class="user-shell__brand-copy">
+        <strong>ImperialGym</strong>
+        <span>Operaciones</span>
+      </div>
+    </div>
+
+    <nav class="user-shell__nav">
+      @for (item of navigation; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="user-shell__nav-link--active"
+          class="user-shell__nav-link"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path [attr.d]="item.iconPath" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="user-shell__session">
+      <div class="user-shell__session-copy">
+        <span>Operador</span>
+        <strong>{{ username() }}</strong>
+      </div>
+      <button type="button" class="button button--secondary" (click)="logout()">Cerrar sesion</button>
+    </div>
+  </header>
+
+  <main class="user-shell__main">
+    <router-outlet />
+  </main>
+</div>

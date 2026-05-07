@@ -1,0 +1,50 @@
+<div class="auth-shell">
+  <section class="auth-shell__stage">
+    <aside class="auth-shell__media"></aside>
+
+    <section class="auth-shell__panel">
+      <header class="auth-shell__header">
+        <div class="auth-shell__brand">
+          <span class="auth-shell__brand-line"></span>
+          <div class="auth-shell__brand-copy">
+            <strong>IMPERIALGYM</strong>
+            <span>Control Interno</span>
+          </div>
+        </div>
+
+        <div class="auth-shell__header-copy">
+          <p>Acceso</p>
+          <h2>Iniciar sesion</h2>
+        </div>
+      </header>
+
+      @if (feedback(); as feedbackMessage) {
+        <app-notice-banner
+          [tone]="feedbackMessage.tone"
+          [title]="feedbackMessage.title"
+          [message]="feedbackMessage.message"
+        />
+      }
+
+      <form class="form-grid auth-shell__form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label for="username">Usuario</label>
+          <input id="username" type="text" formControlName="username" placeholder="admin" />
+        </div>
+
+        <div class="field">
+          <label for="password">Contrasena</label>
+          <input id="password" type="password" formControlName="password" placeholder="Tu contrasena" />
+        </div>
+
+        <div class="button-row auth-shell__actions">
+          <button type="submit" class="button auth-shell__submit" [disabled]="submitting()">
+            {{ submitting() ? 'Ingresando...' : 'Entrar' }}
+          </button>
+        </div>
+      </form>
+
+      <a class="auth-shell__link" routerLink="/register">Crear cuenta</a>
+    </section>
+  </section>
+</div>

@@ -1,0 +1,33 @@
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
+  padding: 1.9rem 1.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+}
+
+.empty-state__copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.empty-state__copy h3,
+.empty-state__copy p {
+  margin: 0;
+}
+
+.empty-state__copy h3 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.empty-state__copy p {
+  max-width: 25rem;
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}

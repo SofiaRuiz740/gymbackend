@@ -8,27 +8,27 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:8080"
+      "value": "http://34.9.105.179:8080"
     },
     {
       "key": "userServiceUrl",
-      "value": "http://localhost:8081"
+      "value": ""
     },
     {
       "key": "categoryServiceUrl",
-      "value": "http://localhost:8082"
+      "value": ""
     },
     {
       "key": "productServiceUrl",
-      "value": "http://localhost:8083"
+      "value": ""
     },
     {
       "key": "inventoryServiceUrl",
-      "value": "http://localhost:8084"
+      "value": ""
     },
     {
       "key": "reportServiceUrl",
-      "value": "http://localhost:8085"
+      "value": ""
     },
     {
       "key": "adminUsername",

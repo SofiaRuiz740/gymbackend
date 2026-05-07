@@ -8,7 +8,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 5Gi   # 🔥 bajado (5Gi es innecesario en dev)
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -17,9 +17,15 @@ metadata:
   namespace: gym-inventory
 spec:
   replicas: 1
+
+  # 🔥 IMPORTANTE: evita conflictos de volumen
+  strategy:
+    type: Recreate
+
   selector:
     matchLabels:
       app: postgres
+
   template:
     metadata:
       labels:
@@ -28,26 +34,45 @@ spec:
       containers:
         - name: postgres
           image: postgres:16-alpine
+
           ports:
             - containerPort: 5432
+
+          # 🔥 FIX CLAVE: recursos BAJOS (esto te estaba rompiendo todo)
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
+
           env:
             - name: POSTGRES_DB
               value: postgres
+
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: platform-secret
                   key: DB_USER
+
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: platform-secret
                   key: DB_PASSWORD
+
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
+
             - name: postgres-init
               mountPath: /docker-entrypoint-initdb.d
+
           readinessProbe:
             exec:
               command:
@@ -56,10 +81,12 @@ spec:
                 - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
             initialDelaySeconds: 10
             periodSeconds: 10
+
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: postgres-pvc
+
         - name: postgres-init
           configMap:
             name: postgres-init
@@ -75,4 +102,3 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-

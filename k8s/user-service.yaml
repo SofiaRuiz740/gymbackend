@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: gym/user-service:latest
+          image: us-central1-docker.pkg.dev/gym-inventory-platform/gym-backend/user-service:v1
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8081
+            - containerPort: 8080
           env:
             - name: DB_NAME
               value: gym_user_db
@@ -29,12 +29,23 @@ spec:
                 name: platform-config
             - secretRef:
                 name: platform-secret
+
+          # 🔥 FIX DEFINITIVO
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 8081
-            initialDelaySeconds: 25
+              port: 8080
+            initialDelaySeconds: 60
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 20
 ---
 apiVersion: v1
 kind: Service
@@ -45,6 +56,5 @@ spec:
   selector:
     app: user-service
   ports:
-    - port: 8081
-      targetPort: 8081
-
+    - port: 8080
+      targetPort: 8080

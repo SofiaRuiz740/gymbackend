@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: gym/api-gateway:latest
+          image: us-central1-docker.pkg.dev/gym-inventory-platform/gym-backend/api-gateway:v1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -35,9 +35,9 @@ metadata:
   name: api-gateway
   namespace: gym-inventory
 spec:
+  type: LoadBalancer
   selector:
     app: api-gateway
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 8080
-

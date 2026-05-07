@@ -1,0 +1,27 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - us-central1-docker.pkg.dev/ensayo1-494921/gym-repo/api-gateway:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - us-central1-docker.pkg.dev/ensayo1-494921/gym-repo/api-gateway:latest
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - api-gateway
+      - --image=us-central1-docker.pkg.dev/ensayo1-494921/gym-repo/api-gateway:latest
+      - --region=us-central1
+      - --platform=managed
+      - --allow-unauthenticated
+      - --set-env-vars=USER_SERVICE_URI=https://user-service-b65bwtsthq-uc.a.run.app,CATEGORY_SERVICE_URI=https://category-service-b65bwtsthq-uc.a.run.app,PRODUCT_SERVICE_URI=https://product-service-b65bwtsthq-uc.a.run.app,INVENTORY_SERVICE_URI=https://inventory-service-b65bwtsthq-uc.a.run.app,REPORT_SERVICE_URI=https://report-service-b65bwtsthq-uc.a.run.app,GATEWAY_ALLOWED_ORIGIN=http://localhost:4200
+
+images:
+  - us-central1-docker.pkg.dev/ensayo1-494921/gym-repo/api-gateway:latest

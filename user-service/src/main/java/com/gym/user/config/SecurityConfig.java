@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/actuator/health", "/actuator/info").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
                         .pathMatchers(HttpMethod.GET, "/api/v1/users/**").hasRole("ADMIN")
                         .pathMatchers(HttpMethod.PATCH, "/api/v1/users/**").hasRole("ADMIN")

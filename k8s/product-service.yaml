@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
         - name: product-service
-          image: gym/product-service:latest
+          image: us-central1-docker.pkg.dev/gym-inventory-platform/gym-backend/product-service:v2
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8083
+            - containerPort: 8080   # 🔥 CORREGIDO
           env:
             - name: DB_NAME
               value: gym_product_db
@@ -29,12 +29,23 @@ spec:
                 name: platform-config
             - secretRef:
                 name: platform-secret
+
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 8083
-            initialDelaySeconds: 25
+              port: 8080   # 🔥 CORREGIDO
+            initialDelaySeconds: 60
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080   # 🔥 CORREGIDO
+            initialDelaySeconds: 90
+            periodSeconds: 20
+
 ---
 apiVersion: v1
 kind: Service
@@ -45,6 +56,5 @@ spec:
   selector:
     app: product-service
   ports:
-    - port: 8083
-      targetPort: 8083
-
+    - port: 8080        # 🔥 CORREGIDO
+      targetPort: 8080  # 🔥 CORREGIDO

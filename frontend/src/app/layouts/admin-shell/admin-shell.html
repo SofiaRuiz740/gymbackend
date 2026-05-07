@@ -1,0 +1,44 @@
+<div class="admin-shell">
+  <aside class="admin-shell__rail">
+    <div class="admin-shell__brand">
+      <div class="admin-shell__brand-mark">IG</div>
+      <div class="admin-shell__brand-copy">
+        <strong>ImperialGym</strong>
+        <span>Panel central</span>
+      </div>
+    </div>
+
+    <div class="admin-shell__nav-group">
+      <span class="admin-shell__nav-label">Navegacion</span>
+
+      <nav class="admin-shell__nav">
+        @for (item of navigation; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="admin-shell__nav-link--active"
+            class="admin-shell__nav-link"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path [attr.d]="item.iconPath" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+    </div>
+
+    <div class="admin-shell__footer">
+      <div class="admin-shell__profile">
+        <span class="admin-shell__profile-label">Sesion activa</span>
+        <strong>{{ username() }}</strong>
+        <span>{{ todayLabel }}</span>
+      </div>
+
+      <button type="button" class="admin-shell__logout" (click)="logout()">Cerrar sesion</button>
+    </div>
+  </aside>
+
+  <main class="admin-shell__main">
+    <router-outlet />
+  </main>
+</div>

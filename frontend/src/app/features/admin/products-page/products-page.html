@@ -1,0 +1,157 @@
+<div class="page-stack">
+  <section class="page-lead">
+    <div class="page-lead__copy">
+      <h1>Productos</h1>
+      <p>Gestiona el catalogo activo, su clasificacion y valor comercial.</p>
+    </div>
+  </section>
+
+  @if (feedback(); as feedbackMessage) {
+    <app-notice-banner
+      [tone]="feedbackMessage.tone"
+      [title]="feedbackMessage.title"
+      [message]="feedbackMessage.message"
+    />
+  }
+
+  <div class="products-page__layout">
+    <section class="products-page__editor">
+      <header class="products-page__editor-head">
+        <h2>{{ isEditing() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+      </header>
+
+      @if (!hasActiveCategories()) {
+        <app-notice-banner
+          tone="warning"
+          title="Sin categorias activas"
+          message="Activa una categoria antes de continuar."
+        />
+      }
+
+      <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label for="product-sku">SKU</label>
+          <input id="product-sku" type="text" formControlName="sku" />
+        </div>
+
+        <div class="field">
+          <label for="product-name">Nombre</label>
+          <input id="product-name" type="text" formControlName="name" />
+        </div>
+
+        <div class="field">
+          <label for="product-description">Descripcion</label>
+          <textarea id="product-description" formControlName="description"></textarea>
+        </div>
+
+        <div class="form-grid form-grid--2">
+          <div class="field">
+            <label for="product-category">Categoria</label>
+            <select id="product-category" formControlName="categoryId">
+              <option value="">Selecciona una categoria</option>
+              @for (category of categories(); track category.id) {
+                <option [value]="category.id">
+                  {{ category.name }} - {{ category.active ? 'Activa' : 'Inactiva' }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="product-type">Tipo</label>
+            <select id="product-type" formControlName="productType">
+              @for (type of productTypes; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid--2">
+          <div class="field">
+            <label for="product-brand">Marca</label>
+            <input id="product-brand" type="text" formControlName="brand" />
+          </div>
+
+          <div class="field">
+            <label for="product-price">Precio</label>
+            <input id="product-price" type="number" formControlName="unitPrice" />
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="button" [disabled]="submitting() || !hasActiveCategories()">
+            {{ submitting() ? 'Guardando...' : 'Guardar' }}
+          </button>
+
+          @if (isEditing()) {
+            <button type="button" class="button button--ghost" (click)="resetForm()">Cancelar</button>
+          }
+        </div>
+      </form>
+    </section>
+
+    <section class="products-page__list surface-card">
+      <header class="products-page__list-head">
+        <h2>Listado</h2>
+        <span>{{ productsState().data.length }} registros</span>
+      </header>
+
+      @if (productsState().status === 'loading') {
+        <app-loading-panel label="Cargando productos..." />
+      } @else if (productsState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="productsState().message ?? ''" />
+      } @else if (productsState().status === 'empty') {
+        <app-empty-state title="Sin productos" message="Todavia no hay productos registrados." />
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (product of productsState().data; track product.id) {
+                <tr>
+                  <td>
+                    <strong>{{ product.name }}</strong>
+                    <span class="inline-meta">{{ product.sku }} - {{ product.brand }}</span>
+                  </td>
+                  <td>{{ product.categoryName }}</td>
+                  <td>{{ product.unitPrice | currency: 'COP' : 'symbol' : '1.0-0' }}</td>
+                  <td>
+                    <span
+                      class="status-pill"
+                      [class.status-pill--active]="product.active"
+                      [class.status-pill--inactive]="!product.active"
+                    >
+                      {{ product.active ? 'Activo' : 'Pausado' }}
+                    </span>
+                  </td>
+                  <td class="products-page__actions">
+                    <button type="button" class="button button--secondary" (click)="editProduct(product)">
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      class="button button--ghost"
+                      [disabled]="busyProductId() === product.id"
+                      (click)="toggleStatus(product)"
+                    >
+                      {{ product.active ? 'Pausar' : 'Activar' }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</div>

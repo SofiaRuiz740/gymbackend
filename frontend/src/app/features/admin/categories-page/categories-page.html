@@ -1,0 +1,114 @@
+<div class="page-stack">
+  <section class="page-lead">
+    <div class="page-lead__copy">
+      <h1>Categorias</h1>
+      <p>Organiza las lineas de producto que estructuran el catalogo del gym.</p>
+    </div>
+  </section>
+
+  @if (feedback(); as feedbackMessage) {
+    <app-notice-banner
+      [tone]="feedbackMessage.tone"
+      [title]="feedbackMessage.title"
+      [message]="feedbackMessage.message"
+    />
+  }
+
+  <div class="categories-page__layout">
+    <section class="categories-page__editor">
+      <header class="categories-page__editor-head">
+        <h2>{{ isEditing() ? 'Editar categoria' : 'Nueva categoria' }}</h2>
+      </header>
+
+      <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label for="category-code">Codigo</label>
+          <input id="category-code" type="text" formControlName="code" />
+        </div>
+
+        <div class="field">
+          <label for="category-name">Nombre</label>
+          <input id="category-name" type="text" formControlName="name" />
+        </div>
+
+        <div class="field">
+          <label for="category-description">Descripcion</label>
+          <textarea id="category-description" formControlName="description"></textarea>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="button" [disabled]="submitting()">
+            {{ submitting() ? 'Guardando...' : 'Guardar' }}
+          </button>
+
+          @if (isEditing()) {
+            <button type="button" class="button button--ghost" (click)="resetForm()">
+              Cancelar
+            </button>
+          }
+        </div>
+      </form>
+    </section>
+
+    <section class="categories-page__list surface-card">
+      <header class="categories-page__list-head">
+        <h2>Listado</h2>
+        <span>{{ categoriesState().data.length }} registros</span>
+      </header>
+
+      @if (categoriesState().status === 'loading') {
+        <app-loading-panel label="Cargando categorias..." />
+      } @else if (categoriesState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="categoriesState().message ?? ''" />
+      } @else if (categoriesState().status === 'empty') {
+        <app-empty-state title="Sin categorias" message="Crea la primera categoria." />
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Categoria</th>
+                <th>Estado</th>
+                <th>Actualizada</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (category of categoriesState().data; track category.id) {
+                <tr>
+                  <td>
+                    <strong>{{ category.name }}</strong>
+                    <span class="inline-meta">{{ category.code }}</span>
+                  </td>
+                  <td>
+                    <span
+                      class="status-pill"
+                      [class.status-pill--active]="category.active"
+                      [class.status-pill--inactive]="!category.active"
+                    >
+                      {{ category.active ? 'Activa' : 'Inactiva' }}
+                    </span>
+                  </td>
+                  <td>{{ category.updatedAt | date: 'mediumDate' }}</td>
+                  <td class="categories-page__actions">
+                    <button type="button" class="button button--secondary" (click)="editCategory(category)">
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      class="button button--ghost"
+                      [disabled]="busyCategoryId() === category.id"
+                      (click)="toggleStatus(category)"
+                    >
+                      {{ category.active ? 'Pausar' : 'Activar' }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</div>

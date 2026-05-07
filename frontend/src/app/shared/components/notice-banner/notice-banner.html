@@ -1,0 +1,20 @@
+@if (title() || message()) {
+  <div
+    class="notice-banner"
+    [ngClass]="{
+      'notice-banner--success': tone() === 'success',
+      'notice-banner--warning': tone() === 'warning',
+      'notice-banner--danger': tone() === 'danger'
+    }"
+  >
+    <div class="notice-banner__content">
+      @if (title()) {
+        <p class="notice-banner__title">{{ title() }}</p>
+      }
+
+      @if (message()) {
+        <p class="notice-banner__message">{{ message() }}</p>
+      }
+    </div>
+  </div>
+}

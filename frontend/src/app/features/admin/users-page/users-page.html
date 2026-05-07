@@ -1,0 +1,116 @@
+<div class="page-stack">
+  <section class="page-lead">
+    <div class="page-lead__copy">
+      <h1>Usuarios</h1>
+      <p>Controla cuentas internas, permisos y estado de acceso del equipo.</p>
+    </div>
+  </section>
+
+  @if (feedback(); as feedbackMessage) {
+    <app-notice-banner
+      [tone]="feedbackMessage.tone"
+      [title]="feedbackMessage.title"
+      [message]="feedbackMessage.message"
+    />
+  }
+
+  <div class="users-page__layout">
+    <section class="users-page__editor">
+      <header class="users-page__editor-head">
+        <h2>Nuevo usuario</h2>
+      </header>
+
+      <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label for="user-username">Usuario</label>
+          <input id="user-username" type="text" formControlName="username" />
+        </div>
+
+        <div class="field">
+          <label for="user-email">Correo</label>
+          <input id="user-email" type="email" formControlName="email" />
+        </div>
+
+        <div class="field">
+          <label for="user-password">Contrasena</label>
+          <input id="user-password" type="password" formControlName="password" />
+        </div>
+
+        <div class="field">
+          <label for="user-role">Rol</label>
+          <select id="user-role" formControlName="role">
+            @for (role of roles; track role) {
+              <option [value]="role">{{ role }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="button" [disabled]="submitting()">
+            {{ submitting() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="users-page__list surface-card">
+      <header class="users-page__list-head">
+        <h2>Listado</h2>
+        <span>{{ usersState().data.length }} registros</span>
+      </header>
+
+      @if (usersState().status === 'loading') {
+        <app-loading-panel label="Cargando usuarios..." />
+      } @else if (usersState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="usersState().message ?? ''" />
+      } @else if (usersState().status === 'empty') {
+        <app-empty-state title="Sin usuarios" message="Crea la primera cuenta." />
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Cuenta</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Creado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of usersState().data; track user.id) {
+                <tr>
+                  <td>
+                    <strong>{{ user.username }}</strong>
+                    <span class="inline-meta">{{ user.email }}</span>
+                  </td>
+                  <td>{{ user.role }}</td>
+                  <td>
+                    <span
+                      class="status-pill"
+                      [class.status-pill--active]="user.active"
+                      [class.status-pill--inactive]="!user.active"
+                    >
+                      {{ user.active ? 'Activo' : 'Bloqueado' }}
+                    </span>
+                  </td>
+                  <td>{{ user.createdAt | date: 'mediumDate' }}</td>
+                  <td class="users-page__actions">
+                    <button
+                      type="button"
+                      class="button button--ghost"
+                      [disabled]="busyUserId() === user.id"
+                      (click)="toggleStatus(user)"
+                    >
+                      {{ user.active ? 'Bloquear' : 'Reactivar' }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</div>

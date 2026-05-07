@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
         - name: category-service
-          image: gym/category-service:latest
+          image: us-central1-docker.pkg.dev/gym-inventory-platform/gym-backend/category-service:v2
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8082
+            - containerPort: 8080
           env:
             - name: DB_NAME
               value: gym_category_db
@@ -29,12 +29,23 @@ spec:
                 name: platform-config
             - secretRef:
                 name: platform-secret
+
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 8082
-            initialDelaySeconds: 25
+              port: 8080   # 🔥 CORREGIDO
+            initialDelaySeconds: 60
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080   # 🔥 CORREGIDO
+            initialDelaySeconds: 90
+            periodSeconds: 20
+
 ---
 apiVersion: v1
 kind: Service
@@ -45,6 +56,5 @@ spec:
   selector:
     app: category-service
   ports:
-    - port: 8082
-      targetPort: 8082
-
+    - port: 8080
+      targetPort: 8080

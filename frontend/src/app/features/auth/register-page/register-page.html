@@ -1,0 +1,60 @@
+<div class="auth-shell">
+  <section class="auth-shell__stage">
+    <aside class="auth-shell__media auth-shell__media--register"></aside>
+
+    <section class="auth-shell__panel">
+      <header class="auth-shell__header">
+        <div class="auth-shell__brand">
+          <span class="auth-shell__brand-line"></span>
+          <div class="auth-shell__brand-copy">
+            <strong>IMPERIALGYM</strong>
+            <span>Control Interno</span>
+          </div>
+        </div>
+
+        <div class="auth-shell__header-copy">
+          <p>Nuevo acceso</p>
+          <h2>Crear cuenta</h2>
+        </div>
+      </header>
+
+      @if (feedback(); as feedbackMessage) {
+        <app-notice-banner
+          [tone]="feedbackMessage.tone"
+          [title]="feedbackMessage.title"
+          [message]="feedbackMessage.message"
+        />
+      }
+
+      <form class="form-grid auth-shell__form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label for="register-username">Usuario</label>
+          <input id="register-username" type="text" formControlName="username" placeholder="Nombre de usuario" />
+        </div>
+
+        <div class="field">
+          <label for="register-email">Correo</label>
+          <input id="register-email" type="email" formControlName="email" placeholder="tu@imperialgym.com" />
+        </div>
+
+        <div class="field">
+          <label for="register-password">Contrasena</label>
+          <input id="register-password" type="password" formControlName="password" placeholder="Minimo 8 caracteres" />
+        </div>
+
+        <div class="field">
+          <label for="register-confirm-password">Confirmar contrasena</label>
+          <input id="register-confirm-password" type="password" formControlName="confirmPassword" placeholder="Repite tu contrasena" />
+        </div>
+
+        <div class="button-row auth-shell__actions">
+          <button type="submit" class="button auth-shell__submit" [disabled]="submitting()">
+            {{ submitting() ? 'Creando...' : 'Crear cuenta' }}
+          </button>
+        </div>
+      </form>
+
+      <a class="auth-shell__link" routerLink="/login">Volver al acceso</a>
+    </section>
+  </section>
+</div>

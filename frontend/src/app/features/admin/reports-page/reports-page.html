@@ -1,0 +1,173 @@
+<div class="page-stack">
+  <section class="page-lead">
+    <div class="page-lead__copy">
+      <h1>Reportes</h1>
+      <p>Consulta stock, alertas y trazabilidad consolidada desde un solo panel.</p>
+    </div>
+  </section>
+
+  @if (feedback(); as feedbackMessage) {
+    <app-notice-banner
+      [tone]="feedbackMessage.tone"
+      [title]="feedbackMessage.title"
+      [message]="feedbackMessage.message"
+    />
+  }
+
+  <section class="reports-page__filters-bar surface-card">
+    <form class="reports-page__filters" [formGroup]="form" (ngSubmit)="runReports()">
+      <div class="field">
+        <label for="threshold">Umbral</label>
+        <input id="threshold" type="number" formControlName="threshold" />
+      </div>
+
+      <div class="field">
+        <label for="from">Desde</label>
+        <input id="from" type="datetime-local" formControlName="from" />
+      </div>
+
+      <div class="field">
+        <label for="to">Hasta</label>
+        <input id="to" type="datetime-local" formControlName="to" />
+      </div>
+
+      <div class="button-row reports-page__actions">
+        <button type="submit" class="button">Actualizar</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="page-grid reports-page__grid">
+    <section class="reports-page__main surface-card">
+      <header class="reports-page__panel-head">
+        <h2>Stock general</h2>
+      </header>
+
+      @if (stockState().status === 'loading') {
+        <app-loading-panel label="Generando stock..." />
+      } @else if (stockState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="stockState().message ?? ''" />
+      } @else if (stockState().status === 'empty') {
+        <app-empty-state title="Sin datos" message="No hay stock para mostrar." />
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Stock</th>
+                <th>Entradas</th>
+                <th>Salidas</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of stockState().data; track item.productId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.productName }}</strong>
+                    <span class="inline-meta">{{ item.categoryName }}</span>
+                  </td>
+                  <td>{{ item.currentStock | number }}</td>
+                  <td>{{ item.totalEntries | number }}</td>
+                  <td>{{ item.totalExits | number }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="reports-page__alert">
+      <header class="reports-page__panel-head">
+        <h2>Bajo stock</h2>
+      </header>
+
+      @if (lowStockState().status === 'loading') {
+        <app-loading-panel label="Generando alertas..." />
+      } @else if (lowStockState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="lowStockState().message ?? ''" />
+      } @else if (lowStockState().status === 'empty') {
+        <app-empty-state title="Sin alertas" message="No hay productos por debajo del threshold." />
+      } @else {
+        <div class="reports-page__alert-list">
+          @for (item of lowStockState().data; track item.productId) {
+            <article class="reports-page__alert-item">
+              <div>
+                <strong>{{ item.productName }}</strong>
+                <span>{{ item.sku }}</span>
+              </div>
+              <span class="status-pill status-pill--warning">{{ item.currentStock }}</span>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="reports-page__audit surface-card">
+      <header class="reports-page__panel-head">
+        <h2>Movimientos</h2>
+      </header>
+
+      @if (auditState().status === 'loading') {
+        <app-loading-panel label="Generando auditoria..." />
+      } @else if (auditState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="auditState().message ?? ''" />
+      } @else if (auditState().status === 'empty') {
+        <app-empty-state title="Sin movimientos" message="No hay registros en este rango." />
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of auditState().data; track item.movementId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.productName }}</strong>
+                    <span class="inline-meta">{{ item.reference || 'Sin referencia' }}</span>
+                  </td>
+                  <td>{{ item.movementType }}</td>
+                  <td>{{ item.registeredBy }}</td>
+                  <td>{{ item.occurredAt | date: 'medium' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="reports-page__summary surface-card">
+      <header class="reports-page__panel-head">
+        <h2>Resumen por tipo</h2>
+      </header>
+
+      @if (summaryState().status === 'loading') {
+        <app-loading-panel label="Generando resumen..." />
+      } @else if (summaryState().status === 'error') {
+        <app-notice-banner tone="danger" title="Error" [message]="summaryState().message ?? ''" />
+      } @else if (summaryState().status === 'empty') {
+        <app-empty-state title="Sin resumen" message="No hay agregados en este rango." />
+      } @else {
+        <div class="reports-page__summary-list">
+          @for (item of summaryState().data; track item.movementType) {
+            <article class="reports-page__summary-item">
+              <div class="reports-page__summary-copy">
+                <strong>{{ item.movementType }}</strong>
+                <span>{{ item.movementCount | number }} mov.</span>
+              </div>
+              <strong class="reports-page__summary-value">{{ item.totalUnits | number }}</strong>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</div>
